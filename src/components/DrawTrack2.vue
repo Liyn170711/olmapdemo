@@ -3,7 +3,7 @@
     <div id="map" style="position: absolute; width: 100%; height: 100%;"></div>
     <div class="toolbar">
       <button @click="drawLine()">Draw Line</button>
-      <button @click="cleartrack()">Clear</button>
+      <button @click="clearTrack()">Clear</button>
       <div>
         <label for="speed">
           speed:&nbsp;
@@ -31,7 +31,7 @@ export default {
       animationButtonLabel: "Start Animation",
       animateEnable: false,
       animating: false,
-      speed: 2, // 速度
+      speed: 1, // 速度
       now: null, // 当前时间
       geoMarker: null
     };
@@ -90,7 +90,7 @@ export default {
       });
       this.map.addInteraction(drawer);
     },
-    cleartrack() {
+    clearTrack() {
       // 去掉之前的overlay
       for (const popup of this.$refs.testPopup) {
         this.map.removeOverlay(popup.popuper)
@@ -133,7 +133,7 @@ export default {
         let dy = end[1] - start[1]; // y方向上的变化量
         let rotation = Math.atan2(dy, dx); // 旋转角度
         let segment = new ol.geom.LineString([start, end]); // 线段
-        let pos = segment.getCoordinateAt(0.7); // 计算
+        let pos = segment.getCoordinateAt(0.7); // 计算箭头所在位置坐标
         styles.push(
           new ol.style.Style({
             geometry: new ol.geom.Point(pos), // 剪头的位置
@@ -148,7 +148,6 @@ export default {
       return styles;
     },
     iconStyle(feature) {
-      let label = feature.get("attributes").label;
       let style = new ol.style.Style({
         image: new ol.style.Circle({
           radius: 7.5,
@@ -185,15 +184,9 @@ export default {
       });
       this.trackSource.addFeature(this.geoMarker);
       for (let i = 0; i < this.coords.length; i++) {
-        let label = "出现次数：" + (i + 1);
-        let id = "routeIndex_" + (i + 1);
         let pointFeature = new ol.Feature({
           type: "icon",
-          geometry: new ol.geom.Point(this.coords[i]),
-          attributes: {
-            id: id,
-            label: label
-          }
+          geometry: new ol.geom.Point(this.coords[i])
         });
         this.trackSource.addFeature(pointFeature)
       }
@@ -213,8 +206,7 @@ export default {
         // 结束动画
         this.animating = false
         this.animationButtonLabel = 'Start Animation'
-        let coord = ended ? this.coords[this.coords.length - 1] : this.coords[0]
-        this.geoMarker.getGeometry().setCoordinates(coord); // 设置定位图标的位置
+        this.geoMarker.getGeometry().setCoordinates(this.coords[0]); // 设置定位图标的位置
         this.map.un('postcompose', this.moveGeoMarker) // 移除地图渲染的监听
     },
     moveGeoMarker(event) { // 移动定位图标
@@ -222,12 +214,16 @@ export default {
         let frameState = event.frameState
         if (this.animating) {
             let elapsedTime = frameState.time - this.now
-            let index = Math.round(this.speed * elapsedTime / 1000)
-            if (index >= this.coords.length) {
-                this.stopAnimation(true)
+            let indexNumber = this.speed * elapsedTime / 1000 // 线路节点索引,浮点值
+            let index = Math.floor(indexNumber) // 线路节点索引,整数值
+            if (index >= this.coords.length - 1) {
+              this.stopAnimation(true)
                 return
             }
-            let coord = this.coords[index]
+            let fraction = indexNumber - index // 线段部分
+            console.log('线路节点索引：', indexNumber, '线段部分：', fraction)
+            let segment = new ol.geom.LineString([this.coords[index], this.coords[index+1]]); // 线段
+            let coord = segment.getCoordinateAt(fraction); // 计算位置坐标
             this.geoMarker.getGeometry().setCoordinates(coord); // 设置定位图标的位置
         }
         this.map.render(); // 地图继续渲染
