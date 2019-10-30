@@ -228,6 +228,31 @@ export default {
         }
         this.map.render(); // 地图继续渲染
     }
+  },
+  /**
+   * 移动定位图标根据路线长度
+   * @param {*} event 事件
+   */
+  moveGeoMarkerByLength(event) { // 移动定位图标
+    let frameState = event.frameState
+    if (this.animating) {
+      let trackGeometry = this.trackSource.getFeatureById('route').get('geometry')
+      let length = trackGeometry.getLength()
+      console.log('轨迹线总长：', length)
+      let elapsedTime = frameState.time - this.now
+      // let indexNumber = elapsedTime / STEPTIME // 线路节点索引,浮点值
+      let indexNumber = elapsedTime / 1000 // 线路节点索引,浮点值
+      let index = Math.floor(indexNumber) // 线路节点索引,整数值
+      // let fraction = index * SPEED / length
+      let fraction = index * 100 / length
+      console.log('轨迹动画模拟进度：', fraction)
+      if (fraction > 1 && !this.isCircle) {
+        this.stopAnimation()
+        return
+      }
+      this.geoMarker.getGeometry().setCoordinates(trackGeometry.getCoordinateAt(fraction)) // 设置定位图标的位置
+    }
+    this.map.render() // 地图继续渲染
   }
 };
 </script>

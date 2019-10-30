@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import HelloMap from '@/components/HelloMap'
 import DrawTrack from '@/components/DrawTrack'
 import DrawTrack2 from '@/components/DrawTrack2'
+import DrawCircle from '@/components/DrawCircle'
 import ScaleLine from '@/components/control/ScaleLine'
 import OverviewMap from '@/components/control/OverviewMap'
 
@@ -12,7 +13,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: "/overviewMap"
+      redirect: "/drawtrack"
     },
     {
       path: '/helloMap',
@@ -23,6 +24,11 @@ export default new Router({
       path: '/drawtrack',
       name: 'DrawTrack',
       component: DrawTrack
+    },
+    {
+      path: '/drawcircle',
+      name: 'DrawCircle',
+      component: DrawCircle
     },
     {
       path: '/drawtrack2',
