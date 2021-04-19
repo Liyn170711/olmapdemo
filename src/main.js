@@ -3,9 +3,10 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import './assets/fonts/iconfont.css'
+import opengis from '../static/opengis/index'
 
 Vue.config.productionTip = false
+Vue.use(opengis)
 
 /* eslint-disable no-new */
 new Vue({

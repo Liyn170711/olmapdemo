@@ -1,11 +1,10 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloMap from '@/components/HelloMap'
 import DrawTrack from '@/components/DrawTrack'
 import DrawTrack2 from '@/components/DrawTrack2'
-import DrawCircle from '@/components/DrawCircle'
-import ScaleLine from '@/components/control/ScaleLine'
-import OverviewMap from '@/components/control/OverviewMap'
+import TestOLMap from '@/components/TestOLMap'
+import RoutePlanning from '@/components/RoutePlanning'
+import IsImgExist from '@/prac/IsImgExist'
 
 Vue.use(Router)
 
@@ -13,12 +12,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: "/drawtrack"
-    },
-    {
-      path: '/helloMap',
-      name: 'HelloMap',
-      component: HelloMap
+      redirect: "/isImgExist"
     },
     {
       path: '/drawtrack',
@@ -26,24 +20,24 @@ export default new Router({
       component: DrawTrack
     },
     {
-      path: '/drawcircle',
-      name: 'DrawCircle',
-      component: DrawCircle
-    },
-    {
       path: '/drawtrack2',
       name: 'DrawTrack2',
       component: DrawTrack2
     },
     {
-      path: '/scaleLine',
-      name: 'ScaleLine',
-      component: ScaleLine
+      path: '/testolmap',
+      name: 'TestOLMap',
+      component: TestOLMap
     },
     {
-      path: '/overviewMap',
-      name: 'OverviewMap',
-      component: OverviewMap
+      path: '/routePlanning',
+      name: 'RoutePlanning',
+      component: RoutePlanning
+    },
+    {
+      path: '/isImgExist',
+      name: 'IsImgExist',
+      component: IsImgExist
     }
   ]
 })

@@ -10,7 +10,6 @@
           <input id="speed" type="range" min="0" max="20" step="1" v-model="speed">
         </label>
         <button :disabled="!animateEnable" @click="startAnimation()">{{ animationButtonLabel }}</button>
-        <span><i class="iconfont icon-you" id="icon"></i></span>
       </div>
     </div>
   </div>
@@ -18,11 +17,9 @@
 
 <script>
 import ol from "openlayers";
-import '../assets/fonts/iconfont.css'
-import IconFont from './IconFont'
 
 export default {
-  name: "DrawTrack",
+  name: "HelloWorld",
   data() {
     return {
       map: null,
@@ -131,17 +128,10 @@ export default {
         styles.push(
           new ol.style.Style({
             geometry: new ol.geom.Point(pos), // 剪头的位置
-            // image: new ol.style.Icon({
-            //   src: IconFont.getCurrentIcon(32, '#ff0000', '#ff0000'), // 箭头图片（箭头指向右方）
-            //   // anchor: [0.75, 0.5],
-            //   // rotateWithView: false,
-            //   rotation: -rotation
-            // }),
-            text: new ol.style.Text({
-              font: 'normal 32px iconfont',
-              text: window.getComputedStyle(document.querySelector('.icon-you'), ':before').getPropertyValue('content').replace(/"/g,''),
-              fill: new ol.style.Fill({ color: '#ff0000' }),
-              textBaseline: 'middle',
+            image: new ol.style.Icon({
+              src: "/static/images/arrow.png", // 箭头图片（箭头指向右方）
+              // anchor: [0.75, 0.5],
+              // rotateWithView: false,
               rotation: -rotation
             }),
             zIndex: 1002
