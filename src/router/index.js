@@ -3,7 +3,8 @@ import Router from 'vue-router'
 import DrawTrack from '@/components/DrawTrack'
 import DrawTrack2 from '@/components/DrawTrack2'
 import TestOLMap from '@/components/TestOLMap'
-import RoutePlanning from '@/components/RoutePlanning'
+import RoutePlanning from '@/components/routeplanning/RoutePlanning'
+import AMapRouteStyle from '@/components/routeplanning/AMapRouteStyle'
 import IsImgExist from '@/prac/IsImgExist'
 
 Vue.use(Router)
@@ -12,7 +13,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: "/isImgExist"
+      redirect: "/AMapRouteStyle"
     },
     {
       path: '/drawtrack',
@@ -33,6 +34,11 @@ export default new Router({
       path: '/routePlanning',
       name: 'RoutePlanning',
       component: RoutePlanning
+    },
+    {
+      path: '/aMapRouteStyle',
+      name: 'AMapRouteStyle',
+      component: AMapRouteStyle
     },
     {
       path: '/isImgExist',

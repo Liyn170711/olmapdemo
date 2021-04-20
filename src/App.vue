@@ -11,6 +11,7 @@ export default {
 </script>
 
 <style>
+@import './assets/fonts/iconfont';
 html,body {
   margin: 0;
 }
