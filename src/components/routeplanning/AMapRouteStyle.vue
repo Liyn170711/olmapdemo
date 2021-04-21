@@ -81,9 +81,11 @@ export default {
     handleMoveEnd() {
       console.log('处理地图移动结束')
       if (this.isChangeResolution && vectorSource && routeGeometry) {
-        this.isChangeResolution = false
         let isRouteIntersectMapExtent = routeGeometry.intersectsExtent(this.map.getView().calculateExtent(this.map.getSize())) // 路径是否在地图范围内
-        isRouteIntersectMapExtent && this.addRouteArrowFeature() // 添加路径箭头要素
+        if (isRouteIntersectMapExtent) {
+          this.isChangeResolution = false
+          this.addRouteArrowFeature() // 添加路径箭头要素
+        }
       }
     },
     // 路径规划
