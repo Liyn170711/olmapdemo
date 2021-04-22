@@ -27,7 +27,7 @@ let geoStep // 箭头显示的步长（单位：米，即：每隔多少米显�
 let vectorSource // 路径显示矢量数据源
 let routeGeometry // 路径（单线）包含轨迹的所有坐标
 export default {
-  name: 'AMapRouteStyle',
+  name: 'TestOLMap',
   data() {
     return {
         map: null,
@@ -182,13 +182,13 @@ export default {
             let arraw_coor= lineStringGeom.getCoordinateAt( i * 1.0 / arrowNum)
             styles.push(new ol.style.Style({
                 geometry: new ol.geom.Point(arraw_coor),
-                // image: new ol.style.Circle({ // 箭头使用圆形
+                // image: new ol.style.Circle({
                 //     radius: 7,
                 //     fill: new ol.style.Fill({
                 //         color: '#ffcc33'
                 //     })
                 // })
-                text: new ol.style.Text({ // 箭头使用伪类样式
+                text: new ol.style.Text({
                   font: 'bold 8px iconfont',
                   text: window.getComputedStyle(document.querySelector('.icon-jiantou'), ':before').getPropertyValue('content').replace(/"/g, ''), // 获取伪类样式的内容
                   fill: new ol.style.Fill({ color: '#ffffff' }),
@@ -259,18 +259,13 @@ export default {
         }
         styles.push(new ol.style.Style({
             geometry: new ol.geom.Point(arraw_coor),
-            text: new ol.style.Text({ // 箭头使用伪类样式
+            text: new ol.style.Text({
               font: 'bold 8px iconfont',
               text: window.getComputedStyle(document.querySelector('.icon-jiantou'), ':before').getPropertyValue('content').replace(/"/g, ''), // 获取伪类样式的内容
               fill: new ol.style.Fill({ color: '#ffffff' }),
               textBaseline: 'middle',
               rotation: -arrow_rotation
             })
-            //   src: '../static/content/images/arrowright.png',
-            //   anchor: [0.75, 0.5],
-            //   rotateWithView: true,
-            //   rotation: -arrow_rotation
-            // })
         }))
       }
       return styles
