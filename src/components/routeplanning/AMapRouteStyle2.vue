@@ -6,14 +6,11 @@
   -->
 <template>
   <div>
-    <bs-map style='position: absolute width: 100% height: 100%' projection='EPSG:3857' :center='[12957302.414606724, 4852760.584444312]' :zoom='13' :maxZoom='19' ref='mapAppContainer' @ready='loadMapReady' @singleclick='handleMapClick' @zoom="handleMapResolutionChange"
-      @moveend="handleMoveEnd">
-      <bs-gaodelayer></bs-gaodelayer>
-    </bs-map>
+    <div id="map" style='position: absolute width: 100% height: 100%'></div>
     <div class='toolbar'>
       <i class="iconfont icon-jiantou" style="display: none;"></i><!-- 轨迹箭头隐藏，勿删！！！ --><br/>
-      <span class="lable-name">{{startCoords}}</span><button @click="pointerStatus='start'">选取起点</button><br/>
-      <span class="lable-name">{{endCoords}}</span><button @click="pointerStatus='end'">选取终点</button><br/>
+      <span class="lable-name">{{startCoords}}</span><button @click="handleSelectPoint('startCoords')">选取起点</button><br/>
+      <span class="lable-name">{{endCoords}}</span><button @click="handleSelectPoint('endCoords')">选取终点</button><br/>
       <button @click='routePlanning()'>Route Planning</button>
     </div>
   </div>
@@ -32,32 +29,51 @@ export default {
     return {
         map: null,
         startCoords: [],
-        endCoords: [],
-        pointerStatus: '', // 鼠标状态，'start'选取起点 'end' 选取终点 ，''不是选取状态
-        isChangeResolution: false // 是否改变缩放级别
+        endCoords: []
     }
   },
   watch: {
   },
   mounted() {
+    this.initMap() // 初始化地图
   },
   methods: {
-    loadMapReady(param) {
-      this.map = param.map
-      let mapResolution = this.map.getView().getResolution()
+    initMap() {
+      let baseLayer = new ol.layer.Tile({
+          source: new ol.source.XYZ({  
+              url:'http://webrd01.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8'//7,8
+          }),  
+          projection: 'EPSG:3857' 
+      })
+      let view = new ol.View({
+        // 地图视图
+        center: [12957302.414606724, 4852760.584444312], // 中心点经纬度坐标
+        maxZoom: 19, // 最大缩放等级
+        zoom: 13, // 默认缩放等级
+        projection: 'EPSG:3857'
+      })
+      this.map = new ol.Map({
+        target: "map", // 地图渲染的DOM对象
+        layers: [
+          baseLayer // 初始设置地图图层
+        ],
+        view: view
+      })
+      let mapResolution = view.getResolution()
       // console.log('获取到当前地图的分辨率：', mapResolution)
       geoStep = ARROW_PIX_STEP * mapResolution // 当前地图分辨率每隔 geoStep 米 显示一个箭头
       // console.log('当前地图分辨率每隔', geoStep, ' m 显示一个箭头')
+      view.on('change:resolution', this.handleMapResolutionChange) // 监听地图分辨率变化
     },
-    handleMapClick(param) {
-      console.log(param.lon, param.lat)
-      if (this.pointerStatus === 'start') {
-        this.startCoords = [param.lon, param.lat]
-        this.pointerStatus = ''
-      } else if (this.pointerStatus === 'end') {
-        this.endCoords = [param.lon, param.lat]
-        this.pointerStatus = ''
-      }
+    /**  
+     * 处理选点
+     * @time 2021-4-22 10:26:17
+     */
+    handleSelectPoint(pointCoord) {
+      this.map.once('singleclick', (event) => {
+        console.log('鼠标点击的点坐标：', event.coordinate)
+        this[pointCoord] = event.coordinate
+      })
     },
     /** 
      * 处理地图分辨率变化
@@ -65,14 +81,12 @@ export default {
      */
     handleMapResolutionChange(param) {
       console.log('处理地图分辨率变化', param)
-      let {zoom, extent} = param
-      this.zoom = parseInt(zoom)
       let mapResolution = this.map.getView().getResolution()
       // console.log('获取到当前地图的分辨率：', mapResolution)
       geoStep = ARROW_PIX_STEP * mapResolution // 当前地图分辨率每隔 geoStep 米 显示一个箭头
       // console.log('当前地图分辨率每隔', geoStep, ' m 显示一个箭头')
-      this.isChangeResolution = true
       vectorSource && this.deleteRouteArrowFeature() // 删除路径箭头要素
+      this.map.once('moveend', this.handleMoveEnd) // 监听地图移动事件
     },
     /** 
      * 处理地图移动结束
@@ -80,10 +94,9 @@ export default {
      */
     handleMoveEnd() {
       console.log('处理地图移动结束')
-      if (this.isChangeResolution && vectorSource && routeGeometry) {
+      if (vectorSource && routeGeometry) {
         let isRouteIntersectMapExtent = routeGeometry.intersectsExtent(this.map.getView().calculateExtent(this.map.getSize())) // 路径是否在地图范围内
         if (isRouteIntersectMapExtent) {
-          this.isChangeResolution = false
           this.addRouteArrowFeature() // 添加路径箭头要素
         }
       }
@@ -182,13 +195,13 @@ export default {
             let arraw_coor= lineStringGeom.getCoordinateAt( i * 1.0 / arrowNum)
             styles.push(new ol.style.Style({
                 geometry: new ol.geom.Point(arraw_coor),
-                // image: new ol.style.Circle({ // 箭头使用圆形
+                // image: new ol.style.Circle({
                 //     radius: 7,
                 //     fill: new ol.style.Fill({
                 //         color: '#ffcc33'
                 //     })
                 // })
-                text: new ol.style.Text({ // 箭头使用伪类样式
+                text: new ol.style.Text({
                   font: 'bold 8px iconfont',
                   text: window.getComputedStyle(document.querySelector('.icon-jiantou'), ':before').getPropertyValue('content').replace(/"/g, ''), // 获取伪类样式的内容
                   fill: new ol.style.Fill({ color: '#ffffff' }),

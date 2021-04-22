@@ -20,7 +20,7 @@
 <script>
 import ol from 'openlayers'
 export default {
-  name: 'TestOLMap',
+  name: 'RoutePlanning',
   data() {
     return {
         map: null,

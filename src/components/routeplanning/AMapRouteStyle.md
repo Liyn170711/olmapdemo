@@ -1,4 +1,5 @@
-### 功能实现思路 AMapRouteStyle.vue —— openlayers4结合高德地图API实现路径规划高德轨迹样式效果
+### 功能实现思路 AMapRouteStyle.vue —— 使用封装openlayers4组件结合高德地图API实现路径规划高德轨迹样式效果
+### 功能实现思路 AMapRouteStyle2.vue —— openlayers4结合高德地图API实现路径规划高德轨迹样式效果（在AMapRouteStyle基础上事件监听使用once优化只监听一次的处理逻辑）
 1. 功能简要说明：已知轨迹实现带箭头的轨迹效果
 2. 实现关键点：
     ① 需要显示的箭头数量；
