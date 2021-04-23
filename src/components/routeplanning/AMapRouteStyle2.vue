@@ -19,10 +19,13 @@
 <script>
 import ol from 'openlayers'
 import RBush from 'rbush';
+import RouteStyle from './style'
 const ARROW_PIX_STEP = 40 // 箭头显示的步长（单位：像素，即：每隔多少个像素显示一个箭头）
 let geoStep // 箭头显示的步长（单位：米，即：每隔多少米显示一个箭头）
 let vectorSource // 路径显示矢量数据源
 let routeGeometry // 路径（单线）包含轨迹的所有坐标
+let routeLength // 路径长度
+let arrowNum // 箭头数量
 export default {
   name: 'AMapRouteStyle',
   data() {
@@ -142,10 +145,14 @@ export default {
       // 构造最优路径图层
       let routeLayer = new ol.layer.Vector({
         source: vectorSource,
-        style: this.routeStyle
+        style: RouteStyle.routeStyle
       })
       this.map.addLayer(routeLayer)
       routeGeometry = new ol.geom.LineString(routeCoords) // 路径（单线）包含轨迹的所有坐标
+      routeLength = lineStringGeom.getLength()
+      console.log('获取到轨迹路线的长度：', routeLength, ' m')
+      arrowNum = parseInt(routeLength * 1.0 / geoStep)
+      console.log('当前地图分辨率需要显示的箭头数量：', arrowNum, ' 个')
       this.addRouteArrowFeature() // 添加路径箭头要素
       this.map.getView().fit(routeGeometry.getExtent()) // 地图定位到路径所在位置
     },
@@ -186,27 +193,16 @@ export default {
      * @date 2021-4-20 12:03:02
      */
     getRouteArrowStyle(lineStringGeom) {
-      let routeLength = lineStringGeom.getLength()
-      console.log('获取到轨迹路线的长度：', routeLength, ' m')
-      let arrowNum = parseInt(routeLength * 1.0 / geoStep)
-      console.log('当前地图分辨率需要显示的箭头数量：', arrowNum, ' 个')
       let styles = []
       for(let i = 1; i< arrowNum; i++){
             let arraw_coor= lineStringGeom.getCoordinateAt( i * 1.0 / arrowNum)
             styles.push(new ol.style.Style({
                 geometry: new ol.geom.Point(arraw_coor),
-                // image: new ol.style.Circle({
-                //     radius: 7,
-                //     fill: new ol.style.Fill({
-                //         color: '#ffcc33'
-                //     })
-                // })
                 text: new ol.style.Text({
                   font: 'bold 8px iconfont',
                   text: window.getComputedStyle(document.querySelector('.icon-jiantou'), ':before').getPropertyValue('content').replace(/"/g, ''), // 获取伪类样式的内容
                   fill: new ol.style.Fill({ color: '#ffffff' }),
                   textBaseline: 'middle',
-                  // rotation: -rotation
                 })
             }))
         }
@@ -272,18 +268,8 @@ export default {
         }
         styles.push(new ol.style.Style({
             geometry: new ol.geom.Point(arraw_coor),
-            text: new ol.style.Text({ // 箭头使用伪类样式
-              font: 'bold 8px iconfont',
-              text: window.getComputedStyle(document.querySelector('.icon-jiantou'), ':before').getPropertyValue('content').replace(/"/g, ''), // 获取伪类样式的内容
-              fill: new ol.style.Fill({ color: '#ffffff' }),
-              textBaseline: 'middle',
-              rotation: -arrow_rotation
-            })
-            //   src: '../static/content/images/arrowright.png',
-            //   anchor: [0.75, 0.5],
-            //   rotateWithView: true,
-            //   rotation: -arrow_rotation
-            // })
+            // text: RouteStyle.arrowText(arrow_rotation),
+            image: RouteStyle.arrowIcon(arrow_rotation)
         }))
       }
       return styles
@@ -304,46 +290,6 @@ export default {
         }).catch(error => {
           reject('获取路径规划数据失败', error, url_bian)
         })
-      })
-    },
-    routeStyle(feature) {
-      let {name, status} = feature
-      name = name ? name.substring (0,1): ''
-      let pointBgColor = '' // 点背景色
-      if (name === '起') {
-        pointBgColor = 'green'
-      } else if (name === '终') {
-        pointBgColor = 'red'
-      }
-      let polylineColor = '#8f8f8f' // 线颜色
-      if(status === '畅通') {
-        polylineColor='#00b514'
-      } else if(status === '缓行'){
-        polylineColor='#ff7324'
-      } 
-      else if(status === '拥堵') {
-        polylineColor='#e20000'
-      }
-      return new ol.style.Style({
-        image: new ol.style.Circle({ // 定义点（起点、终点）的样式
-            radius: 15,
-            fill: new ol.style.Fill({
-                color: pointBgColor
-            })
-        }),
-        stroke: new ol.style.Stroke({ // 定义线的样式
-            color: polylineColor,
-            width: 8,
-        }),
-        text: new ol.style.Text({ // 定义文本的样式
-          text: name,
-          font:'bold 15px 微软雅黑',
-          fill: new ol.style.Fill({
-              color: 'white'
-          }),
-          textAlign:'center',
-          textBaseline:'middle'
-      })
       })
     },
     // ajax请求方法·

@@ -182,18 +182,11 @@ export default {
             let arraw_coor= lineStringGeom.getCoordinateAt( i * 1.0 / arrowNum)
             styles.push(new ol.style.Style({
                 geometry: new ol.geom.Point(arraw_coor),
-                // image: new ol.style.Circle({
-                //     radius: 7,
-                //     fill: new ol.style.Fill({
-                //         color: '#ffcc33'
-                //     })
-                // })
                 text: new ol.style.Text({
                   font: 'bold 8px iconfont',
                   text: window.getComputedStyle(document.querySelector('.icon-jiantou'), ':before').getPropertyValue('content').replace(/"/g, ''), // 获取伪类样式的内容
                   fill: new ol.style.Fill({ color: '#ffffff' }),
                   textBaseline: 'middle',
-                  // rotation: -rotation
                 })
             }))
         }
